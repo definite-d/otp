@@ -5,6 +5,7 @@ from .common import AllowedAlgorithms
 
 
 # HOTP (RFC 4226) - https://datatracker.ietf.org/doc/html/rfc4226
+# noinspection PyPep8Naming
 def rfc_4226(
     C: bytes,
     K: bytes,
@@ -82,6 +83,7 @@ def rfc_4226(
     return str(D).zfill(Digit)
 
 
+# noinspection PyPep8Naming
 def DT(HS: bytes) -> int:
     """
     Dynamic Truncation function.
