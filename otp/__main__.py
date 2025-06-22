@@ -2,9 +2,7 @@ import time
 from argparse import ArgumentParser
 from sys import stdout
 
-from otp.rfc.common import AllowedAlgorithms
-
-from .otp import URIData, parse_uri, totp
+from .otp import AllowedAlgorithms, URIData, parse_uri, totp
 
 parser = ArgumentParser(
     prog="OTP",
