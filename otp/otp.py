@@ -11,7 +11,10 @@ class AllowedAlgorithms(Enum):
 def _rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
     """
     Implementation of the HOTP algorithm, following RFC 4226
-    (with the HMAC parameter being the only deviation from the spec).
+    (with the HMAC parameter being the only deviation from the spec
+    to allow for use from the TOTP spec function).
+
+    HOTP(K,C) = Truncate(HMAC-SHA-1(K,C))
 
     :param C:  8-byte counter value, the moving factor.
         This counter MUST be synchronized between the HOTP generator (client)
@@ -24,6 +27,8 @@ def _rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC: AllowedAlgorithms = Allo
     """
 
     # Validation
+    if len(C) != 8:
+        raise ValueError('C must be 8 bytes long')
     if Digit < 6:
         raise ValueError('Digit must be >= 6')
     if HMAC not in AllowedAlgorithms:
