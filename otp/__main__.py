@@ -1,5 +1,10 @@
-from .otp import totp
+import time
 from argparse import ArgumentParser
+
+from sys import stdout
+
+from otp.rfc.common import AllowedAlgorithms
+from .otp import parse_uri, URIData, totp
 
 parser = ArgumentParser(
     prog="OTP",
@@ -7,11 +12,10 @@ parser = ArgumentParser(
     epilog="Copyright (C) Afam-Ifediogor, U. Divine.",
 )
 parser.add_argument(
-    "URI",
-    metavar="URI",
-    nargs="?",
+    "URIs",
+    nargs="*",
     type=str,
-    help="The URI for an HOTP or TOTP",
+    help="The URIs for TOTPs",
 )
 parser.add_argument(
     "-r",
@@ -21,5 +25,37 @@ parser.add_argument(
     help="How often to refresh the OTP code display.",
 )
 
+
+def main():
+    args = parser.parse_args()
+    if not args.URIs:
+        parser.print_help()
+        return
+
+    tokens: list[URIData] = [parse_uri(uri) for uri in args.URIs]
+    try:
+        while True:
+            now = time.time()
+            for token in tokens:
+                remaining = token["period"] - int(now) % token["period"]
+
+                code = totp(
+                    secret=token["secret"].encode(),
+                    digits=token["digits"],
+                    period=token["period"],
+                    algorithm=AllowedAlgorithms(token["algorithm"]),
+                )
+                message = (
+                    f"\r{token['issuer'] or 'Unknown'} - {token['label']} ➡ "
+                    f"{code} [{str(remaining).zfill(2)}s left]"
+                )
+
+                stdout.write("\r" + message)
+                stdout.flush()
+            time.sleep(args.refresh_interval)
+    except KeyboardInterrupt:
+        print("\nExiting.")
+
+
 if __name__ == "__main__":
-    ...
+    main()
