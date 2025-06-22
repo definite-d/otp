@@ -9,7 +9,7 @@ class AllowedAlgorithms(StrEnum):
     HMAC_SHA_512 = "sha512"
 
 # HOTP (RFC 4226) - https://datatracker.ietf.org/doc/html/rfc4226
-def _rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
+def rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
     """
     Implementation of the HOTP algorithm, following RFC 4226
     (with the HMAC_ALGORITHM parameter being the only deviation from
