@@ -31,7 +31,6 @@ def main():
         return
 
     tokens: list[URIData] = [parse_uri(uri) for uri in args.URIs]
-    print(tokens)
     try:
         while True:
             now = time.time()
