@@ -10,5 +10,11 @@ def hotp(secret: bytes, counter: int, digits=6) -> str:
         _HMAC_ALGORITHM=AllowedAlgorithms.HMAC_SHA_1,
     )
 
-def totp(secret: str, time_step=30, digits=6, t0=0, digest='sha1') -> str:
-    ...
+
+def totp(
+    secret: bytes,
+    digits: int = 6,
+    period: int = 30,
+    t0=0,
+    algorithm: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_256,
+) -> str: ...
