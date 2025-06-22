@@ -7,7 +7,7 @@ class AllowedAlgorithms(Enum):
     HMAC_SHA_256 = hashlib.sha256
     HMAC_SHA_512 = hashlib.sha512
 
-# HOTP (RFC 4226) - https://www.ietf.org/rfc/rfc4226.txt
+# HOTP (RFC 4226) - https://datatracker.ietf.org/doc/html/rfc4226
 def _rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
     """
     Implementation of the HOTP algorithm, following RFC 4226
