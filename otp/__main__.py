@@ -33,6 +33,7 @@ def main():
         return
 
     tokens: list[URIData] = [parse_uri(uri) for uri in args.URIs]
+    print(tokens)
     try:
         while True:
             now = time.time()
@@ -40,7 +41,7 @@ def main():
                 remaining = token["period"] - int(now) % token["period"]
 
                 code = totp(
-                    secret=token["secret"].encode(),
+                    secret=token["secret"],
                     digits=token["digits"],
                     period=token["period"],
                     algorithm=AllowedAlgorithms(token["algorithm"]),

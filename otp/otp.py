@@ -1,3 +1,4 @@
+from base64 import b32decode
 from typing import TypedDict
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -8,7 +9,7 @@ from .rfc.rfc_6238 import rfc_6238
 
 class URIData(TypedDict):
     label: str
-    secret: str
+    secret: bytes
     issuer: str
     digits: int
     period: int
@@ -47,7 +48,7 @@ def parse_uri(uri: str) -> URIData:
 
     return URIData(
         label=label,
-        secret=get("secret"),
+        secret=b32decode(get("secret").upper()),
         issuer=get("issuer"),
         digits=int(get("digits", 6)),
         period=int(get("period", 30)),
