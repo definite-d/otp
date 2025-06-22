@@ -5,7 +5,7 @@ from .common import AllowedAlgorithms
 
 
 # HOTP (RFC 4226) - https://datatracker.ietf.org/doc/html/rfc4226
-def rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
+def rfc_4226(C: bytes, K: bytes, Digit: int = 6, _HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
     """
     Implementation of the HOTP algorithm, following RFC 4226
     (with the HMAC_ALGORITHM parameter being the only deviation from
@@ -39,7 +39,7 @@ def rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC_ALGORITHM: AllowedAlgorith
     :param K: shared secret between client and server; each HOTP
         generator has a different and unique secret K.
     :param Digit: number of digits in an HOTP value; system parameter.
-    :param HMAC_ALGORITHM: HOTP hash function; HMAC_SHA_1 by default, spec-compliant.
+    :param _HMAC_ALGORITHM: HOTP hash function; HMAC_SHA_1 by default, spec-compliant.
     :return D: D is a number in the range 0...10^{Digit}-1
     """
 
@@ -48,8 +48,8 @@ def rfc_4226(C: bytes, K: bytes, Digit: int = 6, HMAC_ALGORITHM: AllowedAlgorith
         raise ValueError('C must be 8 bytes long')
     if Digit < 6:
         raise ValueError('Digit must be >= 6')
-    if HMAC_ALGORITHM not in AllowedAlgorithms:
+    if _HMAC_ALGORITHM not in AllowedAlgorithms:
         raise ValueError('HMAC must be one of: ' + ", ".join(AllowedAlgorithms))
 
     # Step 1: Generate an HMAC-SHA-1 value Let HS = HMAC-SHA-1(K,C)
-    HS = hmac.new(K, C, getattr(hashlib, HMAC_ALGORITHM)).digest()
+    HS = hmac.new(K, C, getattr(hashlib, _HMAC_ALGORITHM)).digest()
