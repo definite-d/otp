@@ -1,0 +1,3 @@
+# HOTP (RFC 4226) - https://www.ietf.org/rfc/rfc4226.txt
+def hotp():
+    ...
