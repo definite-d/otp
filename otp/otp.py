@@ -1,5 +1,6 @@
 from .rfc.common import AllowedAlgorithms
 from .rfc.rfc_4226 import rfc_4226
+from .rfc.rfc_6238 import rfc_6238
 
 
 def hotp(secret: bytes, counter: int, digits=6) -> str:
@@ -17,4 +18,5 @@ def totp(
     period: int = 30,
     t0=0,
     algorithm: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_256,
-) -> str: ...
+) -> str:
+    return rfc_6238(K=secret, T0=t0, X=period, Digit=digits, algorithm=algorithm)
