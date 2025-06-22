@@ -5,7 +5,12 @@ from .common import AllowedAlgorithms
 
 
 # HOTP (RFC 4226) - https://datatracker.ietf.org/doc/html/rfc4226
-def rfc_4226(C: bytes, K: bytes, Digit: int = 6, _HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1) -> int:
+def rfc_4226(
+    C: bytes,
+    K: bytes,
+    Digit: int = 6,
+    _HMAC_ALGORITHM: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1,
+) -> str:
     """
     Implementation of the HOTP algorithm, following RFC 4226
     (with the HMAC_ALGORITHM parameter being the only deviation from
@@ -40,16 +45,70 @@ def rfc_4226(C: bytes, K: bytes, Digit: int = 6, _HMAC_ALGORITHM: AllowedAlgorit
         generator has a different and unique secret K.
     :param Digit: number of digits in an HOTP value; system parameter.
     :param _HMAC_ALGORITHM: HOTP hash function; HMAC_SHA_1 by default, spec-compliant.
-    :return D: D is a number in the range 0...10^{Digit}-1
+    :return: D is a number in the range 0...10^{Digit}-1
+    :rtype: string, because Python doesn't allow for leading zeros on numbers.
     """
 
     # Validation
     if len(C) != 8:
-        raise ValueError('C must be 8 bytes long')
+        raise ValueError("C must be 8 bytes long")
     if Digit < 6:
-        raise ValueError('Digit must be >= 6')
+        raise ValueError("Digit must be >= 6")
     if _HMAC_ALGORITHM not in AllowedAlgorithms:
-        raise ValueError('HMAC must be one of: ' + ", ".join(AllowedAlgorithms))
+        raise ValueError("HMAC must be one of: " + ", ".join(AllowedAlgorithms))
 
-    # Step 1: Generate an HMAC-SHA-1 value Let HS = HMAC-SHA-1(K,C)
+    # Step 1: Generate an HMAC-SHA-1 value
+    #    Let HS = HMAC-SHA-1(K,C)
     HS = hmac.new(K, C, getattr(hashlib, _HMAC_ALGORITHM)).digest()
+
+    # Step 2: Generate a 4-byte string (Dynamic Truncation)
+    #    Let Sbits = DT(HS)   //  DT, defined below,
+    #                         //  returns a 31-bit string
+    # Our DT function already returns Sbits as an integer,
+    #  so we name its output Snum, skipping into Step 3.
+    Snum = DT(HS)
+
+    # Step 3: Compute an HOTP value
+    #    Let Snum  = StToNum(Sbits)   // Convert S to a number in
+    #                                     0...2^{31}-1
+    #    Return D = Snum mod 10^Digit //  D is a number in the range
+    #                                     0...10^{Digit}-1
+    D = Snum % (10 ** Digit)
+
+    # At this point, the algorithm is complete.
+    # However, we need to convert the result (D) to a Python string,
+    # as leading zeros are not allowed but the result must be "Digit"
+    # characters long.
+    return str(D).zfill(Digit)
+
+
+def DT(HS: bytes) -> int:
+    """
+    Dynamic Truncation function.
+    The purpose of the dynamic offset truncation technique is to extract a 4-byte
+    dynamic binary code from a 160-bit (20-byte) HMAC-SHA-1 result.
+
+    DT(String) // String = String[0]...String[19]
+     Let OffsetBits be the low-order 4 bits of String[19]
+     Offset = StToNum(OffsetBits) // 0 <= OffSet <= 15
+     Let P = String[OffSet]...String[OffSet+3]
+
+    :return: the Last 31 bits of P
+    """
+    # First, we get the offset value: the low-order (last) 4 bits of HS.
+    # We do this by taking the last byte (which is 8 bits, e.g. 11111111 in binary = 255 in decimal).
+    # We then perform a bitwise AND on the byte with 00001111 (15 in decimal).
+    # X AND Y = 1 only if both X and Y equal 1
+    # Hence the operation is like a mask which keeps only the last 4 bits.
+    offset = HS[-1] & 0x0F  # 0x0F in hexadecimal == 15 in decimal == 00001111 in binary
+
+    # We then use offset to extract P from HS; P is the next 4 bytes starting from the
+    # offset index.
+    P = (
+        (HS[offset] & 0x7F) << 24
+        | (HS[offset + 1] & 0xFF) << 16
+        | (HS[offset + 2] & 0xFF) << 8
+        | (HS[offset + 3] & 0xFF)
+    )
+
+    return P
