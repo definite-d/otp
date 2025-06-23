@@ -39,6 +39,7 @@ def main():
 
     tokens: list[URIData] = [parse_uri(uri) for uri in args.URIs]
     try:
+        past_first_iteration = False
         while True:
             now = time.time()
             messages = []
@@ -51,13 +52,20 @@ def main():
                     period=token["period"],
                     algorithm=args.algorithm or AllowedAlgorithms(token["algorithm"]),
                 )
-                message = (
-                    f"\r{token['issuer'] or 'Unknown'} - {token['label']} ➡ "
+                messages.append(
+                    f"{token['issuer'] or 'Unknown'} - {token['label']} ➡ "
                     f"{code} [{str(remaining).zfill(2)}s left]"
                 )
 
-                stdout.write("\r" + message)
-                stdout.flush()
+            if past_first_iteration:
+                for _ in range(len(tokens)):
+                    stdout.write("\033[2K")  # Clear line from cursor to end
+                    stdout.write("\033[F")  # Move cursor up one line
+            else:
+                past_first_iteration = True
+            stdout.write("\n".join(messages))
+            stdout.write("\n")
+            stdout.flush()
             time.sleep(args.refresh_interval)
     except KeyboardInterrupt:
         print("\nExiting.")
