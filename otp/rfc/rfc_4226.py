@@ -1,5 +1,5 @@
-import hashlib
 import hmac
+from base64 import b32decode
 
 from .common import AllowedAlgorithms
 
@@ -80,7 +80,7 @@ def rfc_4226(
     #                                     0...2^{31}-1
     #    Return D = Snum mod 10^Digit //  D is a number in the range
     #                                     0...10^{Digit}-1
-    D = Snum % (10 ** Digit)
+    D = Snum % (10**Digit)
 
     # At this point, the algorithm is complete.
     # However, we need to convert the result (D) to a Python string,
@@ -109,7 +109,6 @@ def DT(HS: bytes) -> int:
     # X AND Y = 1 only if both X and Y equal 1
     # Hence the operation is like a mask which keeps only the last 4 bits.
     offset = HS[-1] & 0x0F  # 0x0F in hexadecimal == 15 in decimal == 00001111 in binary
-
     # We then use offset to extract P from HS; P is the next 4 bytes starting from the
     # offset index.
     P = (
