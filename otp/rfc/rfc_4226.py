@@ -58,6 +58,11 @@ def rfc_4226(
     if _HMAC_ALGORITHM not in AllowedAlgorithms:
         raise ValueError("HMAC must be one of: " + ", ".join(AllowedAlgorithms))
 
+
+    # The secret is expected to be in Base-32.
+    #  We perform that conversion here and add padding to the string.
+    K = b32decode(K + b"=" * ((8 - len(K)) % 8))
+
     # Step 1: Generate an HMAC-SHA-1 value
     #    Let HS = HMAC-SHA-1(K,C)
     HS = hmac.new(K, C, getattr(hashlib, _HMAC_ALGORITHM)).digest()
