@@ -51,5 +51,5 @@ def parse_uri(uri: str) -> URIData:
         issuer=get("issuer"),
         digits=int(get("digits", 6)),
         period=int(get("period", 30)),
-        algorithm=get("algorithm", AllowedAlgorithms.HMAC_SHA_256).lower(),
+        algorithm=get("algorithm", AllowedAlgorithms.HMAC_SHA_1).lower(),
     )
