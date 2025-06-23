@@ -30,7 +30,7 @@ def totp(
     digits: int = 6,
     period: int = 30,
     t0=0,
-    algorithm: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_256,
+    algorithm: AllowedAlgorithms = AllowedAlgorithms.HMAC_SHA_1,
 ) -> str:
     return rfc_6238(K=secret, T0=t0, X=period, Digit=digits, algorithm=algorithm)
 
