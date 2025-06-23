@@ -65,7 +65,8 @@ def rfc_4226(
 
     # Step 1: Generate an HMAC-SHA-1 value
     #    Let HS = HMAC-SHA-1(K,C)
-    HS = hmac.new(K, C, getattr(hashlib, _HMAC_ALGORITHM)).digest()
+
+    HS = hmac.new(K, C, _HMAC_ALGORITHM.value).digest()
 
     # Step 2: Generate a 4-byte string (Dynamic Truncation)
     #    Let Sbits = DT(HS)   //  DT, defined below,
