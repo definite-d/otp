@@ -37,5 +37,5 @@ def rfc_6238(
     :param algorithm: The algorithm to use; may be HMAC_SHA_256 or HMAC_SHA_512.
     :return: A string representing the TOTP.
     """
-    T = int((time.time() - T0) // X)
+    T = int((time.time() - T0) / X)
     return rfc_4226(T.to_bytes(length=8, byteorder="big"), K, Digit, algorithm)
