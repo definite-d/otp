@@ -1,5 +1,6 @@
-# otp (WIP)
-Very simple implementations of 
+# otp
+
+Very simple, to-spec implementations of
 [RFC 4226 (HOTP)](https://datatracker.ietf.org/doc/html/rfc4226) 
 and 
 [RFC 6238 (TOTP)](https://datatracker.ietf.org/doc/html/rfc6238)
