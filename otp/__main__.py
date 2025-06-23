@@ -22,6 +22,13 @@ parser.add_argument(
     default=1,
     help="How often to refresh the OTP code display.",
 )
+parser.add_argument(
+    "-a",
+    "--algorithm",
+    choices=AllowedAlgorithms,
+    help="The algorithm to use. Overrides any found in the URIs.",
+    default=None,
+)
 
 
 def main():
@@ -34,6 +41,7 @@ def main():
     try:
         while True:
             now = time.time()
+            messages = []
             for token in tokens:
                 remaining = token["period"] - int(now) % token["period"]
 
@@ -41,7 +49,7 @@ def main():
                     secret=token["secret"],
                     digits=token["digits"],
                     period=token["period"],
-                    algorithm=AllowedAlgorithms(token["algorithm"]),
+                    algorithm=args.algorithm or AllowedAlgorithms(token["algorithm"]),
                 )
                 message = (
                     f"\r{token['issuer'] or 'Unknown'} - {token['label']} ➡ "
